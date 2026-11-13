@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FoodSaver · Control de vencimientos</title>
+  <meta name="description" content="Controla las fechas de vencimiento de tu tienda, vende a tiempo y calcula cuánto dinero se pierde por desperdicio.">
+  <meta name="theme-color" content="#112250">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23112250'/%3E%3Cpath d='M9 23c0-8 5.5-14 14-14 0 8.500-5.500 14-14 14z' fill='%23E7E2CE'/%3E%3Cpath d='M9 23l7.500-7.500' stroke='%23112250' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/gabarito.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/figtree.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/estilos.css">
+</head>
+<body>
+
+  <!-- Pantalla de carga: mientras enciende el motor Java -->
+  <div id="pantalla-carga" class="carga">
+    <div class="carga__caja">
+      <div class="marca marca--grande">
+        <span class="marca__icono" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M9 23c0-8 5.500-14 14-14 0 8.500-5.500 14-14 14z"/><path class="marca__tallo" d="M9 23l7.500-7.500"/></svg></span>
+        <span class="marca__nombre">FoodSaver</span>
+      </div>
+      <div class="carga__barra" role="progressbar" aria-label="Cargando"><span></span></div>
+      <p id="carga-texto" class="carga__texto">Preparando tu tienda…</p>
+      <div id="carga-error" class="carga__error" hidden>
+        <p id="carga-error-texto"></p>
+        <button class="btn btn--principal" type="button" onclick="location.reload()">Reintentar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pantalla de acceso -->
+  <div id="pantalla-acceso" class="acceso" hidden>
+    <section class="acceso__cartel" aria-hidden="true">
+      <div class="marca marca--clara">
+        <span class="marca__icono"><svg viewBox="0 0 32 32"><path d="M9 23c0-8 5.500-14 14-14 0 8.500-5.500 14-14 14z"/><path class="marca__tallo" d="M9 23l7.500-7.500"/></svg></span>
+        <span class="marca__nombre">FoodSaver</span>
+      </div>
+      <p class="acceso__lema">Vende a tiempo.<br>Bota menos.</p>
+      <ul class="acceso__puntos">
+        <li>Te avisa qué productos están por vencer.</li>
+        <li>Descuenta lo que vendes con un toque.</li>
+        <li>Te muestra cuánto dinero se pierde.</li>
+      </ul>
+    </section>
+    <section class="acceso__panel">
+      <form id="form-acceso" class="acceso__form" novalidate>
+        <h1 id="acceso-titulo">Entra a tu tienda</h1>
+        <p id="acceso-sub" class="acceso__sub">Escribe tu correo y tu contraseña.</p>
+        <label class="campo">
+          <span class="campo__rotulo">Correo</span>
+          <input id="acceso-correo" class="campo__entrada" type="email" autocomplete="email" inputmode="email" placeholder="tienda@correo.com" required>
+        </label>
+        <label class="campo">
+          <span class="campo__rotulo">Contraseña</span>
+          <input id="acceso-clave" class="campo__entrada" type="password" autocomplete="current-password" placeholder="Mínimo 6 caracteres" required>
+        </label>
+        <p id="acceso-mensaje" class="acceso__mensaje" role="alert" hidden></p>
+        <button id="acceso-enviar" class="btn btn--principal btn--ancho" type="submit">Entrar</button>
+        <button id="acceso-cambiar" class="btn-texto" type="button">¿Primera vez? Crea tu cuenta</button>
+        <div class="acceso__separador"><span>o</span></div>
+        <button id="acceso-demo" class="btn btn--suave btn--ancho" type="button">Probar sin crear cuenta</button>
+      </form>
+    </section>
+  </div>
+
+  <!-- Aplicación -->
+  <div id="app" class="app" hidden>
+    <aside class="rail">
+      <div class="marca marca--clara">
+        <span class="marca__icono" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M9 23c0-8 5.500-14 14-14 0 8.500-5.500 14-14 14z"/><path class="marca__tallo" d="M9 23l7.500-7.500"/></svg></span>
+        <span class="marca__nombre">FoodSaver</span>
+      </div>
+      <nav class="rail__nav" aria-label="Secciones">
+        <button class="rail__enlace" data-vista="inicio" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>
+          <span>Inicio</span><span class="rail__cuenta" data-cuenta="alertas" title="Productos que necesitan atención"></span>
+        </button>
+        <button class="rail__enlace" data-vista="productos" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg>
+          <span>Productos</span>
+        </button>
+        <button class="rail__enlace" data-vista="reportes" type="button">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+          <span>Reportes</span>
+        </button>
+      </nav>
+      <div class="rail__pie">
+        <p class="rail__negocio" id="rail-negocio">Mi tienda</p>
+        <p class="rail__cuenta-texto" id="rail-cuenta"></p>
+        <button class="rail__pie-boton" type="button" data-accion="ajustes">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+          Ajustes
+        </button>
+        <button class="rail__pie-boton" type="button" data-accion="salir" id="boton-salir">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 5H6a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h4M15 8l4 4-4 4M19 12H10"/></svg>
+          <span id="boton-salir-texto">Cerrar sesión</span>
+        </button>
+      </div>
+    </aside>
+
+    <main class="lienzo">
+      <header class="cabecera">
+        <div>
+          <p class="cabecera__fecha" id="cabecera-fecha"></p>
+          <h1 class="cabecera__titulo" id="cabecera-titulo">Inicio</h1>
+          <p class="cabecera__sub" id="cabecera-sub"></p>
+        </div>
+        <button class="btn btn--principal cabecera__agregar" type="button" data-accion="nuevo">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+          Agregar producto
+        </button>
+      </header>
+      <div id="aviso-modo" class="aviso-modo" hidden></div>
+      <section id="vista" class="vista" aria-live="polite"></section>
+    </main>
+
+    <nav class="barra-movil" aria-label="Secciones">
+      <button class="barra-movil__enlace" data-vista="inicio" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7v8a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1z"/></svg>
+        <span>Inicio</span>
+      </button>
+      <button class="barra-movil__enlace" data-vista="productos" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8l8-4 8 4v8l-8 4-8-4z"/><path d="M4 8l8 4 8-4M12 12v8"/></svg>
+        <span>Productos</span>
+      </button>
+      <button class="barra-movil__enlace barra-movil__agregar" data-accion="nuevo" type="button">
+        <i><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></i>
+        <span>Agregar</span>
+      </button>
+      <button class="barra-movil__enlace" data-vista="reportes" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M12 20V4M19 20v-7"/></svg>
+        <span>Reportes</span>
+      </button>
+      <button class="barra-movil__enlace" data-accion="ajustes" type="button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg>
+        <span>Ajustes</span>
+      </button>
+    </nav>
+  </div>
+
+  <div id="capa-modal" class="capa-modal" hidden></div>
+  <div id="avisos" class="avisos" aria-live="polite"></div>
+
+  <script src="vendor/supabase.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/motor-java.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
